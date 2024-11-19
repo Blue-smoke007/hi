@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://kit.fontawesome.com/5d04e16704.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.emailjs.com/dist/email.min.js"></script>
+    <title>Login</title>
+    <link rel="stylesheet" href="login.css">
+    <style>
+        .error-message {
+            color: red;
+            font-size: 14px;
+            margin-top: 10px;
+            display: none;
+        }
+        .success-message {
+            color: green;
+            font-size: 14px;
+            margin-top: 10px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <img src="Group 2.png" height="50px" style="background-color: white;">
+    <hr class="line1" style="height: 2px;">
+    <div class="section">
+        <div class="sign-up-form">
+            <h1 style="color: #03004f;">Log in to Gigshubz</h1>
+            <form id="loginForm">
+                <i class="fa-solid fa-user fa-fade"></i>
+                <input type="text" id="username" class="input-box" placeholder="    Username" required>
+                <i class="fa fa-lock" aria-hidden="true"></i>
+                <input type="password" id="password" class="input-box" placeholder="    Password" required>
+                <button type="button" class="loginButton" id="loginButton">Log In</button>
+                <p id="errorMessage" class="error-message">Incorrect username or password. Please try again.</p>
+                <p id="successMessage" class="success-message">Login successful! Redirecting...</p>
+                <hr>
+                <p class="or">or</p>
+                <div class="sign-up-btn">
+                    <button type="button" class="sign-up" id="email">
+                        <a href="https://mail.google.com">
+                            <i class="fa-brands fa-google fa-spin"></i> Continue with Email  
+                        </a>
+                    </button>
+                    <button type="button" class="sign-up">
+                        <i class="fa-brands fa-apple fa-beat"></i> Log in with Apple
+                    </button>
+                </div>
+                <hr>
+                <p class="or">or</p>
+                <p>Don't have a Gigshubz account? <a href="#">Sign up here</a></p>
+                <button type="button" class="Sign-in">Sign in</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Initialize EmailJS
+        (function() {
+            emailjs.init('qDjBH-gkzM8GNZwfl'); // Ensure this is your correct Public Key
+        })();
+
+        const correctUsername = "bluesmoke";
+        const correctPassword = "admin123";
+
+        async function logActivity(username, status) {
+            const timestamp = new Date().toISOString();
+
+            // Fetch user's IP address using a public API
+            const ipAddress = await fetch('https://api.ipify.org?format=json')
+                .then(response => response.json())
+                .then(data => data.ip)
+                .catch(() => "IP Address Not Available");
+
+            const logEntry = {
+                username: username,
+                status: status,
+                timestamp: timestamp,
+                ipAddress: ipAddress
+            };
+
+            console.log("Logging Activity:", logEntry);
+
+            // Send the log details via EmailJS
+            emailjs.send("service_fcjk01f", "template_2oafinr", {
+                username: logEntry.username,
+                status: logEntry.status,
+                timestamp: logEntry.timestamp,
+                ipAddress: logEntry.ipAddress,
+                recipient: "onuohamiracle159@gmail.com"
+            }).then(
+                function(response) {
+                    console.log("Email sent successfully:", response.status, response.text);
+                },
+                function(error) {
+                    console.error("Failed to send email. Error details:", error);
+                }
+            );
+        }
+
+        document.getElementById("loginButton").addEventListener("click", async function () {
+            const username = document.getElementById("username").value;
+            const password = document.getElementById("password").value;
+
+            const errorMessage = document.getElementById("errorMessage");
+            const successMessage = document.getElementById("successMessage");
+
+            const isLoginSuccessful = username === correctUsername && password === correctPassword;
+
+            if (isLoginSuccessful) {
+                errorMessage.style.display = "none";
+                successMessage.style.display = "block";
+
+                await logActivity(username, "success");
+
+                setTimeout(() => {
+                    window.location.href = "homepage.html";
+                }, 1000);
+            } else {
+                successMessage.style.display = "none";
+                errorMessage.style.display = "block";
+
+                await logActivity(username, "failure");
+            }
+        });
+    </script>
+</body>
+</html>
